@@ -1,0 +1,32 @@
+{
+  "state": "DECODED",
+  "stamp": 1782507138.168328,
+  "frame_id": "synthetic_qr_camera",
+  "image_width": 1280,
+  "image_height": 720,
+  "detections": [
+    {
+      "bbox_xyxy": [
+        421,
+        137,
+        859,
+        583
+      ],
+      "confidence": 0.925,
+      "decoded": true,
+      "text": "ICROS2026_SYNTHETIC_QR"
+    }
+  ],
+  "decoded_text": "ICROS2026_SYNTHETIC_QR",
+  "decoded_source": "yolo_crop",
+  "decoded_bbox_xyxy": [
+    421,
+    137,
+    859,
+    583
+  ],
+  "frame_count": 58,
+  "detect_count": 58,
+  "decode_count": 58,
+  "crop_path": "/home/jairlab/GO2/artifacts/qr_evidence/qr_20260627_055218_000058_crop.jpg"
+}

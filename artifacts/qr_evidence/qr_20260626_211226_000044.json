@@ -1,0 +1,26 @@
+{
+  "state": "DETECTED",
+  "stamp": 1782475946.455467,
+  "frame_id": "go2_usb_camera_optical_frame",
+  "image_width": 1280,
+  "image_height": 720,
+  "detections": [
+    {
+      "bbox_xyxy": [
+        386,
+        0,
+        1033,
+        325
+      ],
+      "confidence": 0.8573,
+      "decoded": false,
+      "text": ""
+    }
+  ],
+  "decoded_text": "",
+  "decoded_source": "",
+  "decoded_bbox_xyxy": [],
+  "frame_count": 44,
+  "detect_count": 1,
+  "decode_count": 0
+}

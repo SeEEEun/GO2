@@ -1,0 +1,93 @@
+# ICROS2026 measured semantic map template.
+#
+# This file is not valid for runtime until every null/TODO value is replaced
+# with measured values from the actual course map. Do not use guessed zone
+# coordinates or replayed motion waypoints.
+
+version: 1
+frame: camera_init
+
+measurement:
+  source_map: null       # e.g. /home/jairlab/go2_ws/maps/icros2026_final_level.pcd
+  source_frame: camera_init
+  method: TODO           # e.g. measured_from_fastlio_saved_map
+  measured_at: TODO      # e.g. 2026-07-01T14:30:00+09:00
+  operator: TODO
+
+zones:
+  1:
+    goal:
+      x: null
+      y: null
+      z: 0.0
+      yaw: null
+    mission_area:
+      center: {x: null, y: null}
+      size_m: [1.2, 1.2]
+  2:
+    goal:
+      x: null
+      y: null
+      z: 0.0
+      yaw: null
+    mission_area:
+      center: {x: null, y: null}
+      size_m: [1.2, 1.2]
+  3:
+    goal:
+      x: null
+      y: null
+      z: 0.0
+      yaw: null
+    mission_area:
+      center: {x: null, y: null}
+      size_m: [1.2, 1.2]
+  4:
+    goal:
+      x: null
+      y: null
+      z: 0.0
+      yaw: null
+    mission_area:
+      center: {x: null, y: null}
+      size_m: [1.2, 1.2]
+
+walls:
+  left_wall:
+    line:
+      - {x: null, y: null}
+      - {x: null, y: null}
+    normal: {x: null, y: null}
+  right_wall:
+    line:
+      - {x: null, y: null}
+      - {x: null, y: null}
+    normal: {x: null, y: null}
+
+missions:
+  2:
+    orange: {type: wall_touch, side: left, wall_id: left_wall}
+    red: {type: wall_touch, side: right, wall_id: right_wall}
+  3:
+    orange: {type: qr_photo, side: right, wall_id: right_wall}
+    red: {type: qr_photo, side: left, wall_id: left_wall}
+
+risk_regions:
+  - id: shaking_bridge
+    risk: unstable_bridge
+    polygon:
+      - {x: null, y: null}
+      - {x: null, y: null}
+      - {x: null, y: null}
+  - id: center_stair_slope
+    risk: high_risk_0p45m_center_cross
+    polygon:
+      - {x: null, y: null}
+      - {x: null, y: null}
+      - {x: null, y: null}
+  - id: hidden_foot_drop
+    risk: foot_drop_or_gap
+    polygon:
+      - {x: null, y: null}
+      - {x: null, y: null}
+      - {x: null, y: null}

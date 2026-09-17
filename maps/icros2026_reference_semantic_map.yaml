@@ -1,0 +1,94 @@
+# ICROS2026 reference semantic map for offline rehearsal only.
+#
+# This file is derived from the public reference geometry already encoded in
+# /home/jairlab/go2_ws/maps/icros2026_reference_meta.json. It is not a measured
+# competition map and must not be used as the final competition semantic map.
+
+version: 1
+frame: map
+
+measurement:
+  source_map: /home/jairlab/go2_ws/maps/icros2026_reference_dense_visual.pcd
+  source_frame: map
+  method: reference_geometry_from_public_rules_not_measured_competition_map
+  measured_at: 2026-06-26T01:50:00+09:00
+  operator: codex_offline_rehearsal
+
+zones:
+  1:
+    goal: {x: -2.0, y: 1.5, z: 0.0, yaw: 0.0}
+    mission_area:
+      center: {x: -2.0, y: 1.5}
+      size_m: [1.2, 1.2]
+  2:
+    goal: {x: -2.0, y: -1.5, z: 0.0, yaw: 0.0}
+    mission_area:
+      center: {x: -2.0, y: -1.5}
+      size_m: [1.2, 1.2]
+  3:
+    goal: {x: 2.0, y: -1.5, z: 0.0, yaw: 3.14159}
+    mission_area:
+      center: {x: 2.0, y: -1.5}
+      size_m: [1.2, 1.2]
+  4:
+    goal: {x: 2.0, y: 1.5, z: 0.0, yaw: 3.14159}
+    mission_area:
+      center: {x: 2.0, y: 1.5}
+      size_m: [1.2, 1.2]
+
+walls:
+  left_wall:
+    line:
+      - {x: -4.0, y: -3.0}
+      - {x: -4.0, y: 3.0}
+    normal: {x: 1.0, y: 0.0}
+  right_wall:
+    line:
+      - {x: 4.0, y: -3.0}
+      - {x: 4.0, y: 3.0}
+    normal: {x: -1.0, y: 0.0}
+
+missions:
+  2:
+    orange: {type: wall_touch, side: left, wall_id: left_wall}
+    red: {type: wall_touch, side: right, wall_id: right_wall}
+  3:
+    orange: {type: qr_photo, side: right, wall_id: right_wall}
+    red: {type: qr_photo, side: left, wall_id: left_wall}
+
+risk_regions:
+  - id: shaking_bridge
+    risk: unstable_bridge
+    polygon:
+      - {x: -1.85, y: 1.85}
+      - {x: 1.85, y: 1.85}
+      - {x: 1.85, y: 2.45}
+      - {x: -1.85, y: 2.45}
+  - id: center_stair_slope
+    risk: high_risk_0p45m_center_cross
+    polygon:
+      - {x: -1.65, y: -1.65}
+      - {x: 1.65, y: -1.65}
+      - {x: 1.65, y: 1.65}
+      - {x: -1.65, y: 1.65}
+  - id: hidden_foot_drop
+    risk: foot_drop_or_gap
+    polygon:
+      - {x: -1.40, y: -2.42}
+      - {x: 1.40, y: -2.42}
+      - {x: 1.40, y: -1.88}
+      - {x: -1.40, y: -1.88}
+  - id: rough_tiles
+    risk: rough_terrain_slow
+    polygon:
+      - {x: 2.55, y: -2.15}
+      - {x: 3.15, y: -2.15}
+      - {x: 3.15, y: 2.15}
+      - {x: 2.55, y: 2.15}
+  - id: crosswalk_bars
+    risk: low_uneven_slow
+    polygon:
+      - {x: -3.10, y: -2.15}
+      - {x: -2.60, y: -2.15}
+      - {x: -2.60, y: 2.15}
+      - {x: -3.10, y: 2.15}

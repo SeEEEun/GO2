@@ -1,0 +1,249 @@
+version: 1
+last_updated: "2026-06-27 KST"
+
+strategy:
+  division: "autonomous"
+  main_backend: "sport"
+  main_route:
+    - "MID360"
+    - "FAST-LIO2"
+    - "saved-map localization"
+    - "TRG"
+    - "path_to_cmd_vel"
+    - "Go2 SportClient"
+  low_level_rl_status: "experiment_only_until_repeated_harness_and_short_gait_smoke_pass"
+  hardcoding_policy: "no fixed-distance, fixed-turn, fixed-time, fixed-zone-coordinate, or replayed route behavior"
+
+workspace_roots:
+  go2_hub: "/home/jairlab/GO2"
+  ros_workspace: "/home/jairlab/go2_ws"
+  unitree_repo: "/home/jairlab/Unitree_Go2"
+  roughnav_workspace: "/home/jairlab/go2_roughnav_ws"
+
+source_materials:
+  official_links:
+    main: "https://icros2026.qrckorea.org/"
+    rules: "https://icros2026.qrckorea.org/race_ressources.html"
+    timeline: "https://icros2026.qrckorea.org/timeline.html"
+  local_files:
+    rules_copy: "/home/jairlab/GO2/ICROS2026 규정"
+    orientation_pdf: "/home/jairlab/GO2/ICROS_2026_4족보행_대회 (0613) 오리엔테이션.pdf"
+    previous_mapping_notes: "/home/jairlab/GO2/이전 mapping"
+
+runbooks:
+  robot_live_snapshot: "/home/jairlab/GO2/docs/robot_live_snapshot.md"
+  semantic_map_contract: "/home/jairlab/GO2/docs/semantic_map_contract.md"
+  runtime_profile: "/home/jairlab/GO2/docs/icros2026_runtime_profile.md"
+  qr_mission_pipeline: "/home/jairlab/GO2/docs/qr_mission_pipeline.md"
+  fastlio: "/home/jairlab/go2_ws/docs/runbooks/FASTLIO_GO2_RUNBOOK.md"
+  saved_map_trg_rl: "/home/jairlab/go2_ws/docs/runbooks/saved_map_trg_rl_runbook.md"
+  real_go2_operation: "/home/jairlab/go2_ws/docs/runbooks/REAL_GO2_OPERATION_RUNBOOK.md"
+  erasor2_static_map: "/home/jairlab/go2_ws/docs/runbooks/ERASOR2_GO2_STATIC_MAP_PIPELINE.md"
+  course_map_plan: "/home/jairlab/go2_ws/docs/runbooks/ICROS2026_COURSE_MAP_PLAN.md"
+  rl_real_retraining: "/home/jairlab/go2_ws/docs/runbooks/RL_REAL_GO2_RETRAINING_GUIDE.md"
+
+scripts:
+  readiness_audit: "/home/jairlab/go2_ws/scripts/icros2026_readiness_audit.sh"
+  start_saved_map_stack: "/home/jairlab/go2_ws/scripts/start_saved_map_trg_rl_stack.sh"
+  start_reference_sim: "/home/jairlab/go2_ws/scripts/start_icros2026_reference_sim.sh"
+  run_sport_short_goal: "/home/jairlab/go2_ws/scripts/run_sport_trg_short_goal.sh"
+  run_fastlio_mapping: "/home/jairlab/go2_ws/scripts/run_go2_fastlio_mapping.sh"
+  stop_fastlio_mapping: "/home/jairlab/go2_ws/scripts/stop_go2_fastlio_mapping.sh"
+  recover_sport_mode: "/home/jairlab/go2_ws/scripts/recover_go2_sport_mode.sh"
+  rebuild_icros_maps: "/home/jairlab/go2_ws/scripts/rebuild_icros2026_trg_maps.sh"
+  generate_reference_map: "/home/jairlab/go2_ws/scripts/generate_icros2026_reference_map.py"
+  diagnose_fastlio_bag: "/home/jairlab/go2_ws/scripts/diagnose_fastlio_bag.py"
+  validate_semantic_map: "/home/jairlab/GO2/tools/validate_icros2026_semantic_map.py"
+  mission_normalizer_local: "/home/jairlab/GO2/tools/icros2026_mission_normalizer.py"
+  qr_vision_node: "/home/jairlab/GO2/tools/icros2026_qr_vision_node.py"
+  qr_mission_monitor: "/home/jairlab/GO2/tools/icros2026_qr_mission_monitor.py"
+  usb_camera_image_publisher: "/home/jairlab/GO2/tools/usb_camera_image_publisher.py"
+  publish_synthetic_qr_image: "/home/jairlab/GO2/tools/publish_synthetic_qr_image.py"
+  wait_for_topic_once: "/home/jairlab/GO2/tools/wait_for_topic_once.py"
+  start_qr_vision: "/home/jairlab/GO2/scripts/start_qr_vision.sh"
+  start_usb_camera_qr_vision: "/home/jairlab/GO2/scripts/start_usb_camera_qr_vision.sh"
+  start_usb_camera_qr_mission: "/home/jairlab/GO2/scripts/start_usb_camera_qr_mission.sh"
+  mock_qr_photo_mission: "/home/jairlab/GO2/scripts/mock_qr_photo_mission.sh"
+  test_qr_mission_synthetic: "/home/jairlab/GO2/scripts/test_qr_mission_synthetic.sh"
+  step5_reference_rehearsal: "/home/jairlab/GO2/scripts/step5_reference_rehearsal.sh"
+  step6_real_sensor_only_dry_run: "/home/jairlab/GO2/scripts/step6_real_sensor_only_dry_run.sh"
+  step6_current_mapping: "/home/jairlab/GO2/scripts/step6_current_mapping.sh"
+
+models:
+  qr_yolo:
+    path: "/home/jairlab/GO2/models/qr/best.pt"
+    source_repo: "https://github.com/scardonac/qr_code_detection"
+    source_commit: "84d38c5c65b6f9e4810114684e369cc1a417485d"
+    class_names:
+      - "qr-code"
+
+roughnav_nodes:
+  goal_adapter: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/icros2026_goal_adapter.py"
+  front_camera_bridge: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/icros2026_front_camera_bridge.py"
+  mission_normalizer: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/icros2026_mission_normalizer.py"
+  mission_executor: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/icros2026_mission_executor.py"
+  height_scan_bridge: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/height_scan_bridge.py"
+  path_to_cmd_vel: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/path_to_cmd_vel.py"
+  traversability_node: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/traversability_node.py"
+  config: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/config/rl_interface.yaml"
+  real_launch: "/home/jairlab/go2_roughnav_ws/src/go2_roughnav/launch/06_real_go2_pipeline.launch.py"
+
+templates:
+  semantic_map: "/home/jairlab/GO2/templates/icros2026_semantic_map.template.yaml"
+
+maps:
+  current_mapping:
+    output_dir: "/home/jairlab/go2_ws/maps/current_mapping"
+    latest_fastlio_map: "/home/jairlab/go2_ws/maps/current_mapping/latest_current_fastlio_map.pcd"
+    dongari_room: "/home/jairlab/go2_ws/maps/current_mapping/동아리방.pcd"
+    dongari_room_points: 1382290
+    dongari_room_size_bytes: 44233533
+    dongari_room_backup_20260626_110710: "/home/jairlab/go2_ws/maps/current_mapping/동아리방_backup_20260626_110710.pcd"
+    initial_snapshot_20260626_104528: "/home/jairlab/go2_ws/maps/current_mapping/go2_current_fastlio_20260626_104528.pcd"
+    final_snapshot_20260626_105447: "/home/jairlab/go2_ws/maps/current_mapping/go2_current_fastlio_20260626_105447.pcd"
+  dongari_room_20260626:
+    raw: "/home/jairlab/go2_ws/maps/current_mapping/동아리방.pcd"
+    clean: "/home/jairlab/go2_ws/maps/dongari_room_20260626_clean.pcd"
+    clean_level: "/home/jairlab/go2_ws/maps/dongari_room_20260626_clean_level.pcd"
+    clean_level_meta: "/home/jairlab/go2_ws/maps/dongari_room_20260626_clean_level_meta.json"
+    planner_source: "/home/jairlab/go2_ws/maps/dongari_room_20260626_planner_source.pcd"
+    planner_source_meta: "/home/jairlab/go2_ws/maps/dongari_room_20260626_planner_source_meta.json"
+    rejected_trg_safe: "/home/jairlab/go2_ws/maps/dongari_room_20260626_traversable_safe.pcd"
+    rejected_trg_reason: "walkable_cells=1"
+    visual_trg_safe_v2: "/home/jairlab/go2_ws/maps/dongari_room_20260626_v2_traversable_safe.pcd"
+    visual_trg_config_v2: "/home/jairlab/go2_ws/src/TRG-planner/config/dongari_room_20260626_v2_traversable_safe.yaml"
+    selected_trg_safe: "/home/jairlab/go2_ws/maps/dongari_room_20260626_v3_traversable_safe.pcd"
+    selected_trg_meta: "/home/jairlab/go2_ws/maps/dongari_room_20260626_v3_traversable_safe_meta.json"
+    selected_trg_obstacle_mask: "/home/jairlab/go2_ws/maps/dongari_room_20260626_v3_traversable_safe_obstacle_mask.pcd"
+    selected_trg_config: "/home/jairlab/go2_ws/src/TRG-planner/config/dongari_room_20260626_v3_traversable_safe.yaml"
+    selected_trg_prebuilt_link: "/home/jairlab/go2_ws/src/TRG-planner/prebuilt_maps/dongari_room_20260626_v3_traversable_safe.pcd"
+    selected_walkable_cells: 859
+    latest_offline_path_probe_poses: 12
+    latest_sensor_only_path_probe_poses: 24
+  reference:
+    semantic_map: "/home/jairlab/GO2/maps/icros2026_reference_semantic_map.yaml"
+    terrain_surface: "/home/jairlab/go2_ws/maps/icros2026_reference_terrain_surface.pcd"
+    obstacle_mask: "/home/jairlab/go2_ws/maps/icros2026_reference_obstacle_mask.pcd"
+    dense_visual: "/home/jairlab/go2_ws/maps/icros2026_reference_dense_visual.pcd"
+    meta: "/home/jairlab/go2_ws/maps/icros2026_reference_meta.json"
+    trg_config: "/home/jairlab/go2_ws/src/TRG-planner/config/icros2026_reference_traversable_safe.yaml"
+  practice:
+    localization_dense: "/home/jairlab/go2_ws/maps/go2_dual_lidar_clean_level.pcd"
+    localization_meta: "/home/jairlab/go2_ws/maps/go2_dual_lidar_clean_level_meta.json"
+    planner_source: "/home/jairlab/go2_ws/maps/go2_dual_lidar_clean_level_detail_surface.pcd"
+    trg_safe: "/home/jairlab/go2_ws/maps/go2_dual_lidar_rough_traversable_safe.pcd"
+    trg_config: "/home/jairlab/go2_ws/src/TRG-planner/config/go2_dual_lidar_rough_traversable_safe.yaml"
+    icros2026_trg_safe: "/home/jairlab/go2_ws/maps/go2_dual_lidar_icros2026_traversable_safe.pcd"
+    icros2026_trg_config: "/home/jairlab/go2_ws/src/TRG-planner/config/go2_dual_lidar_icros2026_traversable_safe.yaml"
+  clubroom:
+    localization_dense: "/home/jairlab/go2_ws/maps/clubroom_dual_lidar_20260621_015238_level_no_ceiling.pcd"
+    localization_meta: "/home/jairlab/go2_ws/maps/clubroom_dual_lidar_20260621_015238_level_meta.json"
+    planner_source: "/home/jairlab/go2_ws/maps/clubroom_temporal_no_person_v11_planner_source.pcd"
+    trg_safe: "/home/jairlab/go2_ws/maps/clubroom_temporal_no_person_v11_climbable_traversable.pcd"
+    trg_config: "/home/jairlab/go2_ws/src/TRG-planner/config/clubroom_temporal_no_person_v11_climbable_traversable.yaml"
+
+policies:
+  ros2_contract_42400:
+    policy_onnx: "/home/jairlab/go2_ws/models/policies/go2_real_contract_model_42400/policy.onnx"
+    meta: "/home/jairlab/go2_ws/models/policies/go2_real_contract_model_42400/policy_meta.json"
+    role: "ROS2 policy slot for dry-run or low-level experiments, not Sport walking"
+  isaaclab_best_45000:
+    policy_onnx: "/home/jairlab/go2_ws/models/policies/isaaclab_best_45000/policy.onnx"
+    deploy_yaml: "/home/jairlab/go2_ws/models/policies/isaaclab_best_45000/deploy.yaml"
+    role: "legacy audit and rehearsal policy artifact"
+  low_level_70000:
+    policy_pt: "/home/jairlab/Unitree_Go2/deploy/pre_train/go2_icros/policy_1.pt"
+    config: "/home/jairlab/Unitree_Go2/deploy/deploy_real/configs/go2_icros.yaml"
+    role: "low-level RL experiment only"
+
+ros_topics:
+  organizer_goal_candidates:
+    - "/icros2026/goal_zone"
+    - "/icros2026/goal_pose"
+    - "/icros2026/goal_xy"
+    - "/icros2026/goal_label"
+  navigation:
+    goal_pose: "/goal_pose"
+    trg_path: "/trg/output/path"
+    localized_odometry: "/localized_odometry"
+    registered_cloud_map: "/cloud_registered_map"
+    cmd_vel: "/rl/cmd_vel"
+    sport_stop: "/rl/sport_stop"
+  terrain:
+    height_scan: "/rl/height_scan"
+    terrain_state: "/roughnav/terrain_state"
+    traversability_map: "/traversability_map"
+    terrain_flags: "/roughnav/terrain_flags"
+  mission:
+    organizer_raw: "/icros2026/organizer/mission"
+    organizer_zone: "/icros2026/organizer/zone"
+    organizer_color: "/icros2026/organizer/color"
+    organizer_type: "/icros2026/organizer/mission_type"
+    organizer_side: "/icros2026/organizer/side"
+    organizer_deadline: "/icros2026/organizer/deadline_s"
+    organizer_pass_allowed: "/icros2026/organizer/pass_allowed"
+    normalized: "/icros2026/mission/normalized"
+    request: "/icros2026/mission/request"
+    done: "/icros2026/mission_done"
+    result: "/icros2026/mission/result"
+    status: "/icros2026/mission/status"
+    normalizer_status: "/icros2026/mission_normalizer/status"
+    qr_evidence: "/icros2026/mission/qr_evidence"
+    front_camera_image: "/go2/front_camera/image_raw"
+    usb_camera_image: "/go2/usb_camera/image_raw"
+    usb_camera_status: "/go2/usb_camera/status"
+  vision:
+    qr_status: "/icros2026/vision/qr/status"
+    qr_result: "/icros2026/vision/qr/result"
+    qr_debug_image: "/icros2026/vision/qr/debug_image"
+    qr_evidence_dir: "/home/jairlab/GO2/artifacts/qr_evidence"
+    mission_evidence_dir: "/home/jairlab/GO2/artifacts/mission_evidence"
+  safety:
+    e_stop: "/icros2026/e_stop"
+    clear_stop: "/icros2026/clear_stop"
+    preflight_status: "/icros2026/preflight/status"
+
+camera_devices:
+  external_usb_rgb:
+    preferred_v4l_id: "/dev/v4l/by-id/usb-LX-240924-XH_GENERAL_WEBCAM-video-index0"
+    fallback_selector: "/dev/v4l/by-id/*GENERAL*WEBCAM*video-index0"
+    image_topic: "/go2/usb_camera/image_raw"
+    status_topic: "/go2/usb_camera/status"
+    default_resolution: "1280x720"
+    default_fps: 15.0
+    encoding: "bgr8"
+
+verification:
+  first_audit:
+    cwd: "/home/jairlab/go2_ws"
+    command: "PRESET=practice MODE=presport ./scripts/icros2026_readiness_audit.sh"
+  semantic_map:
+    cwd: "/home/jairlab/GO2"
+    command: "python3 tools/validate_icros2026_semantic_map.py path/to/icros2026_semantic_map.yaml"
+  offline_reference:
+    cwd: "/home/jairlab/GO2"
+    start: "ROUTE_CARD=A ACTION=start ./scripts/step5_reference_rehearsal.sh"
+    stop: "ACTION=stop ./scripts/step5_reference_rehearsal.sh"
+  real_sensor_only:
+    cwd: "/home/jairlab/GO2"
+    command: "ACTION=start ./scripts/step6_real_sensor_only_dry_run.sh"
+    stop: "ACTION=stop ./scripts/step6_real_sensor_only_dry_run.sh"
+  current_mapping:
+    cwd: "/home/jairlab/GO2"
+    start: "ACTION=start ./scripts/step6_current_mapping.sh"
+    save: "ACTION=save ./scripts/step6_current_mapping.sh"
+    stop: "ACTION=save_stop ./scripts/step6_current_mapping.sh"
+  sport_short_goal:
+    cwd: "/home/jairlab/go2_ws"
+    command: "GOAL_DISTANCE_M=0.50 RUN_TIMEOUT_S=3.0 ./scripts/run_sport_trg_short_goal.sh"
+  qr_mission_pipeline:
+    cwd: "/home/jairlab/GO2"
+    start: "ROS_DOMAIN_ID=88 ./scripts/start_usb_camera_qr_mission.sh"
+    mock_mission: "ROS_DOMAIN_ID=88 ./scripts/mock_qr_photo_mission.sh"
+    synthetic_test: "ROS_DOMAIN_ID=188 ./scripts/test_qr_mission_synthetic.sh"
+  dongari_sport_stack:
+    cwd: "/home/jairlab/go2_ws"
+    command: "CONTROL_BACKEND=sport ./scripts/start_saved_map_trg_rl_stack.sh dongari"
+  competition_sport_stack:
+    cwd: "/home/jairlab/go2_ws"
+    command: "CONTROL_BACKEND=sport ARENA_SEMANTICS_PATH=/absolute/path/to/icros2026_semantic_map.yaml LAUNCH_GOAL_ADAPTER=true LAUNCH_MISSION_NORMALIZER=true LAUNCH_FRONT_CAMERA_BRIDGE=true LAUNCH_MISSION_EXECUTOR=true ./scripts/start_saved_map_trg_rl_stack.sh competition"

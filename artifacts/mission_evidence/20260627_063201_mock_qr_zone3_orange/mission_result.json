@@ -1,0 +1,40 @@
+{
+  "state": "DONE",
+  "result": "qr_success",
+  "mission_id": "mock_qr_zone3_orange",
+  "mission_type": "qr_photo",
+  "zone": 3,
+  "color": "orange",
+  "side": "right",
+  "wall_id": "right_wall",
+  "qr": {
+    "state": "DECODED",
+    "decoded_text": "http://m.site.naver.com/0VE4k",
+    "decoded_source": "yolo_crop",
+    "decoded_bbox_xyxy": [
+      453,
+      154,
+      670,
+      389
+    ],
+    "detection_count": 3,
+    "frame_id": "go2_usb_camera_optical_frame",
+    "frame_count": 89,
+    "saved": {
+      "raw_image": "/home/jairlab/GO2/artifacts/qr_evidence/qr_20260627_063201_000089_raw.jpg",
+      "debug_image": "/home/jairlab/GO2/artifacts/qr_evidence/qr_20260627_063201_000089_debug.jpg",
+      "metadata": "/home/jairlab/GO2/artifacts/qr_evidence/qr_20260627_063201_000089.json",
+      "crop_image": "/home/jairlab/GO2/artifacts/qr_evidence/qr_20260627_063201_000089_crop.jpg"
+    }
+  },
+  "motion_commanded": false,
+  "stamp_monotonic": 612306.014716,
+  "mission_evidence": {
+    "directory": "/home/jairlab/GO2/artifacts/mission_evidence/20260627_063201_mock_qr_zone3_orange",
+    "raw_image": "/home/jairlab/GO2/artifacts/mission_evidence/20260627_063201_mock_qr_zone3_orange/photo_raw.jpg",
+    "debug_image": "/home/jairlab/GO2/artifacts/mission_evidence/20260627_063201_mock_qr_zone3_orange/photo_debug.jpg",
+    "crop_image": "/home/jairlab/GO2/artifacts/mission_evidence/20260627_063201_mock_qr_zone3_orange/qr_crop.jpg",
+    "metadata": "/home/jairlab/GO2/artifacts/mission_evidence/20260627_063201_mock_qr_zone3_orange/qr_metadata.json",
+    "mission_result": "/home/jairlab/GO2/artifacts/mission_evidence/20260627_063201_mock_qr_zone3_orange/mission_result.json"
+  }
+}

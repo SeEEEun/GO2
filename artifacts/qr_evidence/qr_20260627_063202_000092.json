@@ -1,0 +1,43 @@
+{
+  "state": "DECODED",
+  "stamp": 1346926.179925,
+  "frame_id": "go2_usb_camera_optical_frame",
+  "image_width": 1280,
+  "image_height": 720,
+  "detections": [
+    {
+      "bbox_xyxy": [
+        553,
+        189,
+        765,
+        413
+      ],
+      "confidence": 0.9395,
+      "decoded": true,
+      "text": "http://m.site.naver.com/0VE4k"
+    },
+    {
+      "bbox_xyxy": [
+        134,
+        155,
+        318,
+        366
+      ],
+      "confidence": 0.7142,
+      "decoded": false,
+      "text": ""
+    }
+  ],
+  "decoded_text": "http://m.site.naver.com/0VE4k",
+  "decoded_source": "yolo_crop",
+  "decoded_bbox_xyxy": [
+    553,
+    189,
+    765,
+    413
+  ],
+  "frame_count": 92,
+  "detect_count": 16,
+  "decode_count": 3,
+  "crop_path": "/home/jairlab/GO2/artifacts/qr_evidence/qr_20260627_063202_000092_crop.jpg"
+}

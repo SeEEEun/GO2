@@ -1,0 +1,188 @@
+목표:
+새로운 환경에서 Go2 + FAST-LIO2로 맵을 따고, 사람/동적 객체/천장/벽 노이즈를 정리한 뒤, TRG planner가 잘 쓸 수 있는 traversable map + graph를 만들고 RViz에서 검증한다.
+
+현재 기준 워크스페이스:
+- ROS workspace: /home/jairlab/go2_ws
+- Unitree repo: /home/jairlab/Unitree_Go2
+- Roughnav workspace: /home/jairlab/go2_roughnav_ws
+
+반드시 먼저 참고할 파일:
+- /home/jairlab/go2_ws/docs/runbooks/saved_map_trg_rl_runbook.md
+- /home/jairlab/go2_ws/docs/runbooks/FASTLIO_GO2_RUNBOOK.md
+- /home/jairlab/go2_ws/docs/runbooks/REAL_GO2_OPERATION_RUNBOOK.md
+- /home/jairlab/go2_ws/src/go2_competition_nav/config/rl_policy_interface.yaml
+- /home/jairlab/go2_roughnav_ws/src/go2_roughnav/go2_roughnav/path_to_cmd_vel.py
+- /home/jairlab/go2_ws/src/go2_competition_nav/go2_competition_nav/pcd_map_closed_loop_sim.py
+- /home/jairlab/go2_ws/scripts/build_temporal_confidence_map.py
+- /home/jairlab/go2_ws/scripts/record_erasor2_clubroom_bag.sh
+- /home/jairlab/go2_ws/scripts/diagnose_fastlio_bag.py
+- /home/jairlab/go2_ws/scripts/start_saved_map_trg_rl_stack.sh
+
+지금까지 한 매핑 작업 요약:
+1. FAST-LIO2로 raw PCD map을 생성했다.
+   - 연습경기장 주요 맵: /home/jairlab/go2_ws/maps/go2_dual_lidar_map.pcd
+   - 동아리방/clubroom 맵도 FAST-LIO2로 따서 테스트했다.
+   - raw PCD는 절대 덮어쓰지 않고, 후처리 결과는 별도 파일로 저장하는 방식으로 진행했다.
+
+2. 저장된 PCD map을 RViz에 띄우고 TRG planner graph를 붙였다.
+   - Saved Dense PCD Map
+   - Walkable Surface
+   - Obstacle Mask
+   - TRG Prebuilt Nodes
+   - TRG Global Graph / Local Graph
+   - TRG Path
+   - Go2 proxy / TF
+   를 같이 시각화했다.
+
+3. 맵 정리 과정에서 시도한 것:
+   - 천장 제거
+   - 벽/주행과 무관한 높은 구조 제거
+   - 사람/동적 객체 후보 제거
+   - 여러 pass를 이용한 temporal confidence map 생성
+   - 제거된 사람 위치를 평지로 메우는 처리
+   - 낮은 타일/램프/험지 디테일은 보존하려고 필터 완화
+   - mesh 시각화도 했지만, planning 기준은 point cloud + TRG graph가 더 안정적이었다.
+
+4. 사람 제거 관련 결론:
+   - 단일 PCD만으로 사람과 장애물을 완벽히 구분하기 어렵다.
+   - 여러 bag/pass를 따서 “여러 번 반복해서 보이는 구조물은 static, 한 번만 보이는 것은 dynamic”으로 판단하는 방식이 더 맞다.
+   - ERASOR2 / DOR / Removert 계열을 검토했지만, 현재 구조에서는 multi-pass temporal confidence + 보수적 후처리가 가장 실용적이다.
+   - 사람을 제거한 자리는 실제로 바닥이면 평지로 채워야 TRG node가 생긴다.
+
+5. TRG planner 쪽에서 고친/고려한 내용:
+   - goal을 찍었을 때 path가 중간에 끊기지 않게 path hold 시간을 늘림.
+   - TRG path endpoint가 goal 근처면 goal tail을 붙여서 끝까지 가도록 조정.
+   - 2D Goal Pose가 node 없는 위치에 찍히면 가까운 traversable node로 snap하는 방향.
+   - 멈춤/끼임 상황에서는 후진 또는 회전 recovery가 필요.
+   - 초록 node가 많아도 edge 비용/높이차/경사 조건이 안 맞으면 실제 path가 막힐 수 있음.
+
+6. TRG map 생성에서 중요한 기준:
+   - XY cell마다 대표 Z를 정해야 한다.
+   - 단순 max Z는 사람/노이즈 때문에 위험하다.
+   - 단순 mean/median은 경사/장애물 위 표면을 죽일 수 있다.
+   - 추천: robust upper percentile, 예: 75~90 percentile 높이 사용.
+   - 단, 1.5m 이상 높은 점, 천장, 벽, 사람 후보는 제외.
+   - 인접 node 간 Z 차이가 Go2가 오를 수 있는 범위를 넘으면 obstacle 또는 high cost로 둔다.
+   - 낮은 타일/램프는 제거하면 안 된다. 이것들이 험지 주행 핵심이다.
+
+새 환경 적용 절차:
+1. 새 환경 이름 정하기:
+   ENV=<새환경이름>
+   예: ENV=clubroom_new 또는 ENV=practice_field_v2
+
+2. FAST-LIO2 mapping 또는 bag 기록을 시작한다.
+   - Go2를 천천히 움직인다.
+   - 시작 후 10초 정도 정지해서 초기 안정화.
+   - 장애물 주변을 여러 방향에서 천천히 돈다.
+   - 같은 위치를 최소 2~3번 다른 방향에서 다시 본다.
+   - 사람은 같은 위치에 계속 서 있으면 static으로 오인되므로 피한다.
+
+3. ERASOR2/DOR용 bag을 pass별로 저장한다.
+   예:
+   cd /home/jairlab/go2_ws
+
+   ./scripts/record_erasor2_clubroom_bag.sh ${ENV}_pass1
+   ./scripts/record_erasor2_clubroom_bag.sh ${ENV}_pass2
+   ./scripts/record_erasor2_clubroom_bag.sh ${ENV}_pass3
+
+4. bag 품질 확인:
+   cd /home/jairlab/go2_ws
+
+   ./scripts/diagnose_fastlio_bag.py /home/jairlab/go2_ws/bags/${ENV}_pass1
+   ./scripts/diagnose_fastlio_bag.py /home/jairlab/go2_ws/bags/${ENV}_pass2
+   ./scripts/diagnose_fastlio_bag.py /home/jairlab/go2_ws/bags/${ENV}_pass3
+
+   확인할 것:
+   - /livox/lidar 존재
+   - /livox/imu 존재
+   - /cloud_registered 존재
+   - /Odometry 존재
+   - /tf 존재
+   - LiDAR dt가 대략 0.1s 근처
+   - IMU가 끊기지 않는지
+   - odometry가 실제 이동량만큼 변하는지
+
+5. FAST-LIO2 raw PCD를 저장한다.
+   - FASTLIO_GO2_RUNBOOK.md의 map save 절차를 따른다.
+   - raw 결과는 예를 들어 아래처럼 보관:
+     /home/jairlab/go2_ws/maps/${ENV}_raw_fastlio.pcd
+
+6. raw map을 level/tilt 보정한다.
+   목표:
+   - 바닥이 RViz grid와 평행해야 함.
+   - 저장된 map과 live FAST-LIO frame을 섞지 말 것.
+   - saved map 기준 frame 하나를 정하고 거기에 맞춘다.
+
+7. 천장/벽/고층 노이즈 제거:
+   - TRG 주행에 필요 없는 천장 제거.
+   - 벽은 localization/시각화에는 유용할 수 있지만 TRG traversable surface에는 직접 넣지 않는다.
+   - 1.5m 이상 높은 점은 기본적으로 traversability map에서 제외.
+   - 단, 실제 올라가야 하는 장애물/램프/타일은 낮은 높이 범위이므로 보존.
+
+8. multi-pass temporal confidence map 생성:
+   cd /home/jairlab/go2_ws
+
+   ./scripts/build_temporal_confidence_map.py \
+     /home/jairlab/go2_ws/maps/passes/${ENV}_pass1_level.pcd \
+     /home/jairlab/go2_ws/maps/passes/${ENV}_pass2_level.pcd \
+     /home/jairlab/go2_ws/maps/passes/${ENV}_pass3_level.pcd \
+     --output-static-pcd /home/jairlab/go2_ws/maps/${ENV}_temporal_static.pcd \
+     --output-dynamic-pcd /home/jairlab/go2_ws/maps/${ENV}_temporal_dynamic_candidates.pcd \
+     --meta-json /home/jairlab/go2_ws/maps/${ENV}_temporal_confidence_meta.json \
+     --voxel 0.08 \
+     --min-static-hit-ratio 0.60 \
+     --min-static-hits 2 \
+     --max-dynamic-hit-ratio 0.34 \
+     --max-dynamic-hits 1
+
+9. 사람 제거 후 빈 바닥 메우기:
+   - 사람 후보가 제거된 자리는 무조건 obstacle로 두면 안 된다.
+   - 그 위치가 room boundary 내부이고 주변이 평지이면 floor height로 보간한다.
+   - 단, 램프/타일/장애물 근처는 무조건 평지로 덮지 말고 원래 높이를 보존한다.
+
+10. TRG용 traversable map 생성:
+   - point cloud에서 XY grid를 만든다.
+   - 각 cell의 대표 높이는 robust upper percentile을 사용한다.
+   - 너무 높은 outlier는 제외한다.
+   - 인접 node 간:
+     - step height
+     - slope
+     - gap
+     - point density
+     를 보고 edge를 만든다.
+   - Go2가 오를 수 있는 낮은 장애물/램프 위에는 node가 생겨야 한다.
+   - 사람/벽/천장 위에는 node가 생기면 안 된다.
+
+11. RViz로 검증:
+   cd /home/jairlab/go2_ws
+
+   ENABLE_MOTOR_PUBLISH=false \
+   RVIZ=true \
+   MAP_CONFIG=${ENV}_trg \
+   ./scripts/start_saved_map_trg_rl_stack.sh
+
+   RViz에서 확인할 것:
+   - 사람 blob이 남아있는지
+   - 낮은 타일/램프가 살아있는지
+   - 천장/벽이 planning surface로 들어가지 않았는지
+   - TRG node가 평지뿐 아니라 올라갈 수 있는 장애물 표면에도 생기는지
+   - graph edge가 불가능한 수직 점프를 연결하지 않는지
+   - 2D Goal Pose를 찍으면 path가 goal 방향으로 정상 생성되는지
+   - TF proxy가 path를 따라 움직이는지
+   - stuck recovery가 동작하는지
+
+12. 실제 Go2 주행 전 기준:
+   - RViz dry-run에서 path가 정상이어야 함.
+   - saved map과 현재 localization frame이 맞아야 함.
+   - live FAST-LIO map을 saved map 위에 그냥 overlay해서 맞는 척하면 안 됨.
+   - 실제 주행은:
+     saved static map + localization transform + TRG path + cmd_vel + controller
+     순서로 연결해야 한다.
+
+주의:
+- mesh는 보기에는 좋지만 TRG planner의 진짜 기준으로 쓰기엔 위험하다.
+- point cloud + traversable node/edge graph를 기준으로 검증한다.
+- 사람 제거를 너무 세게 하면 낮은 장애물도 같이 날아간다.
+- 사람 제거를 너무 약하게 하면 사람 위에 TRG node가 생긴다.
+- 그래서 multi-pass bag이 중요하다.
+- raw map, cleaned map, temporal static map, traversable map은 반드시 파일명을 분리해서 저장한다.
